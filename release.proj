@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Run">
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <!--properties-->
+  <PropertyGroup>
+    <Version Condition="'$(Version)' == ''">0.0.0.1</Version>
+    <SourceFolder>.</SourceFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttributes Include="AssemblyVersion">
+      <_Parameter1>$(Version)</_Parameter1>
+    </AssemblyAttributes>
+  </ItemGroup>
+
+  <!--
+  To Execute this target:
+  
+  dotnet build release.proj /p:Version=1.2.3.4 /t:Run
+  -->
+  <Target Name="Run">
+    <CallTarget Targets="BuildDotnet" />
+    <CallTarget Targets="BuildMSBuild" />
+  </Target>
+
+  <!--
+  To Execute just this target:
+  
+  dotnet build release.proj /p:Version=1.2.3.4 /t:BuildDotNet
+  -->
+  <Target Name="BuildDotnet">
+    <RemoveDir Directories="bin; $(SourceFolder)\DotnetBuildDemo\bin" ContinueOnError="False"/>
+    <RemoveDir Directories="obj; $(SourceFolder)\DotnetBuildDemo\obj" ContinueOnError="False"/>
+    <MSBuild Projects="$(SourceFolder)\DotnetBuildDemo\DotnetBuildDemo.csproj"
+             Properties="Configuration=Release;"
+             Targets="Clean;Restore;Build"
+             ContinueOnError="false"
+             StopOnFirstFailure="true" />
+    <MakeDir Directories="$(SourceFolder)\pkg\" Condition="!Exists('$(SourceFolder)\pkg')"  />
+    <ZipDirectory
+      SourceDirectory="$(SourceFolder)\DotnetBuildDemo\bin\Release"
+      DestinationFile="$(SourceFolder)\pkg\DotnetBuildDemo-Build-$(Version).zip" />
+  </Target>
+
+  <!--
+  To Execute just this target:
+  
+  dotnet build release.proj /p:Version=1.2.3.4 /t:BuildMSBuild
+  
+  summary: 
+  This Target for .NET Framework 4.x will overwrite the Properties\Version.cs file. 
+  The AssemblyAttributes declared above will be written to the file so that on build,
+  these values can be displayed programmatically and as part of the exe/dll attributes 
+  -->
+  <Target Name="BuildMSBuild">
+
+    <WriteCodeFragment Language="C#"
+                       OutputFile="$(SourceFolder)\MSBuildDemo\Properties\Version.cs"
+                       AssemblyAttributes="@(AssemblyAttributes)" />
+    <!--
+    was hoping this would work and we would not have to add a dummy file to the csproj
+    
+    <ItemGroup>
+      <Compile Include="$(SourceFolder)\MSBuildDemo\Properties\Version.cs" />
+    </ItemGroup>
+    -->
+    <RemoveDir Directories="bin; $(SourceFolder)\MSBuildDemo\bin" ContinueOnError="False"/>
+    <RemoveDir Directories="obj; $(SourceFolder)\MSBuildDemo\obj" ContinueOnError="False"/>
+
+    <MSBuild Projects="$(SourceFolder)\MSBuildDemo\MSBuildDemo.csproj"
+             Properties="Configuration=Release;"
+             Targets="Clean;Restore;Build"
+             ContinueOnError="false"
+             StopOnFirstFailure="true" />
+
+    <MakeDir Directories="$(SourceFolder)\pkg\" Condition="!Exists('$(SourceFolder)\pkg')"  />
+    <ZipDirectory
+        SourceDirectory="$(SourceFolder)\MSBuildDemo\bin\Release"
+        DestinationFile="$(SourceFolder)\pkg\MSBuildDemo-Build-$(Version).zip" />
+  </Target>
+
+
+  <!--
+  
+  Helper for .NET Framework projects
+  
+  -->
+  <Target Name="GenerateVersionFile">
+    <WriteCodeFragment Language="C#"
+                       OutputFile="$(SourceFolder)\Properties\Version.cs"
+                       AssemblyAttributes="@(AssemblyAttributes)" />
+    <ItemGroup>
+      <Compile Include="$(SourceFolder)\Properties\Version.cs" />
+    </ItemGroup>
+  </Target>
+
+</Project>
