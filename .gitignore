@@ -33,6 +33,7 @@ bld/
 [Ll]og/
 [Ll]ogs/
 [Pp]kg/
+/pkg/**
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -362,3 +363,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+/pkg/MSBuildDemo-Build-1.2.3.4.zip
