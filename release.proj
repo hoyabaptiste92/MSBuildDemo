@@ -20,6 +20,7 @@
   dotnet build release.proj /p:Version=1.2.3.4 /t:Run
   -->
   <Target Name="Run">
+    <RemoveDir Directories="$(SourceFolder)\pkg" ContinueOnError="False"/>
     <CallTarget Targets="BuildDotnet" />
     <CallTarget Targets="BuildMSBuild" />
   </Target>
@@ -30,13 +31,20 @@
   dotnet build release.proj /p:Version=1.2.3.4 /t:BuildDotNet
   -->
   <Target Name="BuildDotnet">
+    <Exec Command="echo running BuildDotnet /p:Version=$(Version)"/>
+    
+    <Exec Command="echo Clean"/>
     <RemoveDir Directories="bin; $(SourceFolder)\DotnetBuildDemo\bin" ContinueOnError="False"/>
     <RemoveDir Directories="obj; $(SourceFolder)\DotnetBuildDemo\obj" ContinueOnError="False"/>
+
+    <Exec Command="echo Build"/>
     <MSBuild Projects="$(SourceFolder)\DotnetBuildDemo\DotnetBuildDemo.csproj"
              Properties="Configuration=Release;"
              Targets="Clean;Restore;Build"
              ContinueOnError="false"
              StopOnFirstFailure="true" />
+
+    <Exec Command="echo Package"/>
     <MakeDir Directories="$(SourceFolder)\pkg\" Condition="!Exists('$(SourceFolder)\pkg')"  />
     <ZipDirectory
       SourceDirectory="$(SourceFolder)\DotnetBuildDemo\bin\Release"
