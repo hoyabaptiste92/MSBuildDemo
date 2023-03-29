@@ -2,7 +2,7 @@
 
 ## Assembly Version update during build
 
-1. Comment out Assemble Version Attributes in Properties/AssemblyInfo.cs
+### 1. Comment out Assembly Version Attributes in Properties/AssemblyInfo.cs
 
 ```csharp
 // Version information for an assembly consists of the following four values:
@@ -19,14 +19,14 @@
 //[assembly: AssemblyFileVersion("1.0.0.2")]
 ```
 
-2. Add this xml to each csproj file
+### 2. Add this xml to each csproj file
 
 This will tell MSBuild to create a Version.cs file on the fly with the Assembly Version attributes
 
 ```xml
 <!--
 
-msbuild /property:Version=9.9.9.9 .\MSBuildDemo.sln  
+ASSEMBLY VERSIONING
 -->
 <PropertyGroup>
     <Version>0.0.0</Version>
@@ -43,4 +43,15 @@ msbuild /property:Version=9.9.9.9 .\MSBuildDemo.sln
         <Compile Include="$(VersionFileName)" />
     </ItemGroup>
 </Target>
+```
+
+### 3. To run pass Version parameter
+```console
+msbuild /property:Version=9.9.9.9 .\MSBuildDemo.sln  
+```
+
+or
+
+```console
+dotnet build /property:Version=9.9.9.9 .\MSBuildDemo.sln  
 ```
